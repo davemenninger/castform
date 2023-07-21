@@ -44,7 +44,25 @@ resource "digitalocean_firewall" "ponyta" {
   name = "ponyta"
 
   droplet_ids = [digitalocean_droplet.charjabug.id]
-  // no inbound yet
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "22"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  outbound_rule {
+    protocol              = "tcp"
+    port_range            = "80"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  outbound_rule {
+    protocol              = "tcp"
+    port_range            = "443"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
   outbound_rule {
     protocol              = "tcp"
     port_range            = "53"
@@ -64,9 +82,15 @@ resource "digitalocean_firewall" "ponyta" {
 }
 
 resource "digitalocean_droplet" "charjabug" {
-  name     = "charjabug"
-  size     = "s-1vcpu-1gb"
-  image    = "ubuntu-22-04-x64"
-  region   = "nyc1"
-  vpc_uuid = digitalocean_vpc.vermilion.id
+  name      = "charjabug"
+  size      = "s-1vcpu-1gb"
+  image     = "ubuntu-22-04-x64"
+  region    = "nyc1"
+  vpc_uuid  = digitalocean_vpc.vermilion.id
+  user_data = file("charjabug.yaml")
+  tags = ["electric_type", "bug_type"]
+}
+
+output "herpderp" {
+  value = digitalocean_droplet.charjabug.ipv4_address
 }
