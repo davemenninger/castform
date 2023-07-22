@@ -14,7 +14,11 @@ provider "digitalocean" {}
 resource "digitalocean_project" "castform" {
   name        = "castform"
   description = "a smol home in the cloud"
-  resources   = [digitalocean_app.home.urn, digitalocean_droplet.charjabug.urn]
+  resources   = [
+    digitalocean_app.home.urn, 
+    digitalocean_droplet.charjabug.urn,
+    digitalocean_volume.loudred.urn
+  ]
 }
 
 resource "digitalocean_app" "home" {
@@ -93,4 +97,18 @@ resource "digitalocean_droplet" "charjabug" {
 
 output "herpderp" {
   value = digitalocean_droplet.charjabug.ipv4_address
+}
+
+resource "digitalocean_volume" "loudred" {
+  region = "nyc1"
+  name = "loudred"
+  size = 2
+  initial_filesystem_type = "ext4"
+  initial_filesystem_label = "loudred"
+  tags = ["normal_type"]
+}
+
+resource "digitalocean_volume_attachment" "roar" {
+  droplet_id = digitalocean_droplet.charjabug.id
+  volume_id  = digitalocean_volume.loudred.id
 }
