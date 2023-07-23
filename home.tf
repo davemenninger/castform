@@ -45,63 +45,6 @@ resource "digitalocean_vpc" "vermilion" {
   ip_range = "10.110.0.0/16"
 }
 
-resource "digitalocean_firewall" "ponyta" {
-  name = "ponyta"
-
-  droplet_ids = [digitalocean_droplet.charjabug.id]
-
-  inbound_rule {
-    protocol         = "tcp"
-    port_range       = "22"
-    source_addresses = ["0.0.0.0/0", "::/0"]
-  }
-
-  outbound_rule {
-    protocol              = "tcp"
-    port_range            = "80"
-    destination_addresses = ["0.0.0.0/0", "::/0"]
-  }
-
-  outbound_rule {
-    protocol              = "tcp"
-    port_range            = "443"
-    destination_addresses = ["0.0.0.0/0", "::/0"]
-  }
-
-  outbound_rule {
-    protocol              = "tcp"
-    port_range            = "53"
-    destination_addresses = ["0.0.0.0/0", "::/0"]
-  }
-
-  outbound_rule {
-    protocol              = "udp"
-    port_range            = "53"
-    destination_addresses = ["0.0.0.0/0", "::/0"]
-  }
-
-  outbound_rule {
-    protocol              = "icmp"
-    destination_addresses = ["0.0.0.0/0", "::/0"]
-  }
-
-  # tags = ["fire_type"]
-}
-
-resource "digitalocean_droplet" "charjabug" {
-  name      = "charjabug"
-  size      = "s-1vcpu-1gb"
-  image     = "ubuntu-22-04-x64"
-  region    = "nyc1"
-  vpc_uuid  = digitalocean_vpc.vermilion.id
-  user_data = file("charjabug.yaml")
-  tags      = ["electric_type", "bug_type"]
-}
-
-output "herpderp" {
-  value = digitalocean_droplet.charjabug.ipv4_address
-}
-
 resource "digitalocean_volume" "loudred" {
   region                   = "nyc1"
   name                     = "loudred"
@@ -116,10 +59,6 @@ resource "digitalocean_volume_attachment" "roar" {
   volume_id  = digitalocean_volume.loudred.id
 }
 
-resource "digitalocean_domain" "electroweb" {
-  name       = "djm.quest"
-  ip_address = digitalocean_droplet.charjabug.ipv4_address
-}
 
 # https://github.com/hashicorp/terraform/issues/23893
 module "test" {
@@ -132,11 +71,4 @@ resource "digitalocean_record" "www" {
   type   = "CNAME"
   name   = "www"
   value  = "${module.test.host}."
-}
-
-resource "digitalocean_record" "charjabug" {
-  domain = digitalocean_domain.electroweb.id
-  type   = "A"
-  name   = "charjabug"
-  value  = digitalocean_droplet.charjabug.ipv4_address
 }
