@@ -3,12 +3,15 @@ resource "digitalocean_firewall" "ponyta" {
 
   droplet_ids = [digitalocean_droplet.charjabug.id]
 
+  // SSH - local only
+  // TODO: source_addresses = ["10.110.0.0/16", "100.64.0.0/10"]
   inbound_rule {
     protocol         = "tcp"
     port_range       = "22"
-    source_addresses = ["0.0.0.0/0", "::/0"]
+    source_addresses = []
   }
 
+  // ZNC
   inbound_rule {
     protocol         = "tcp"
     port_range       = "3254"
@@ -27,9 +30,29 @@ resource "digitalocean_firewall" "ponyta" {
     destination_addresses = ["0.0.0.0/0", "::/0"]
   }
 
+  // Gemini
+  outbound_rule {
+    protocol              = "tcp"
+    port_range            = "1965"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  // IRC
   outbound_rule {
     protocol              = "tcp"
     port_range            = "6667"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  // Mosh
+  inbound_rule {
+    protocol         = "udp"
+    port_range       = "60123-60456"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+  outbound_rule {
+    protocol              = "udp"
+    port_range            = "60123-60456"
     destination_addresses = ["0.0.0.0/0", "::/0"]
   }
 
